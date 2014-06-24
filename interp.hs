@@ -27,14 +27,14 @@ type EvalM = ExceptT String (ReaderT Env (StateT Int Identity))
 
 assertVInt :: Value -> EvalM Int
 assertVInt (VInt i) = return i
-assertVInt (VBool _) = lift $ throwError "expected integer, but got boolean"
+assertVInt (VBool _) = throwError "expected integer, but got boolean"
 
 assertVBool :: Value -> EvalM Bool
-assertVBool (VInt _) = lift $ throwError "expected boolean, but got integer"
+assertVBool (VInt _) = throwError "expected boolean, but got integer"
 assertVBool (VBool b) = return b
 
 assertNonZero :: Value -> EvalM Value
-assertNonZero (VInt 0) = lift $ throwError "expected non-zero value"
+assertNonZero (VInt 0) = throwError "expected non-zero value"
 assertNonZero v = return v
 
 assertNonZeroExpr :: Expr -> EvalM Value
@@ -61,15 +61,15 @@ evalVar :: String -> EvalM Value
 evalVar n = do env <- ask
                case lookup n env of
                  Just v  -> return v
-                 Nothing -> lift $ throwError ("unbound variable " ++ n)
+                 Nothing -> throwError ("unbound variable " ++ n)
 
 evalLet :: String -> Expr -> Expr -> EvalM Value
 evalLet n x y = do a <- eval x
                    local ((n, a):) $ eval y
 
 countUp :: EvalM ()
-countUp = lift $ do cnt <- get
-                    put (cnt + 1)
+countUp = do cnt <- get
+             put (cnt + 1)
 
 eval :: Expr -> EvalM Value
 eval (EConst v) = return v
