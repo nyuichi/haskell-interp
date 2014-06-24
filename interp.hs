@@ -146,6 +146,12 @@ spaces = (do space; spaces) +++ (return ())
 
 
 
+program :: Parser Expr
+program = do spaces
+             e <- parseE
+             spaces
+             return e
+
 parseE :: Parser Expr
 parseE = parseI +++ parseL
 
@@ -230,13 +236,13 @@ parseC = do e1 <- parseE
             return $ ELt e1 e2
 
 runParse :: String -> [Expr]
-runParse str = runParser parseE str
+runParse str = runParser program str
 
 runEval :: Expr -> Either String Value
 runEval expr = runIdentity (evalStateT (runExceptT (runReaderT (eval expr) [])) 0)
 
 main :: IO ()
-main = do s <- getLine
+main = do s <- getContents
           let e = head $ runParse s
           print e
           case (runEval e) of
