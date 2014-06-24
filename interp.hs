@@ -168,7 +168,7 @@ identifier' = (do c  <- alpha +++ (intToDigit <$> digit)
               (return "")
 
 parseE :: Parser Expr
-parseE = parseI +++ parseL
+parseE = parseI +++ parseC +++ parseY
 
 parseI :: Parser Expr
 parseI = do string "if"
@@ -183,6 +183,20 @@ parseI = do string "if"
             spaces
             e3 <- parseE
             return $ EIf e1 e2 e3
+
+parseY :: Parser Expr
+parseY = do string "let"
+            spaces
+            var <- identifier
+            spaces
+            string "="
+            spaces
+            e1 <- parseE
+            spaces
+            string "in"
+            spaces
+            e2 <- parseE
+            return $ ELet var e1 e2
 
 parseC :: Parser Expr
 parseC = (do e1 <- parseL
@@ -239,7 +253,7 @@ parseM' e = (do spaces
             (return e)
 
 parseK :: Parser Expr
-parseK = parseN +++ parseB +++ parseC
+parseK = parseN +++ parseB +++ parseV
 
 parseN :: Parser Expr
 parseN = do n <- number
@@ -252,6 +266,9 @@ parseB = (do string "True"
          (do string "False"
              return $ EConst (VBool False))
 
+parseV :: Parser Expr
+parseV = do var <- identifier
+            return $ EVar var
 
 runParse :: String -> [Expr]
 runParse str = runParser program str
