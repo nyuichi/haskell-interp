@@ -136,6 +136,9 @@ number' i = (do d <- digit
             +++
             (return i)
 
+alpha :: Parser Char
+alpha = foldl1 (+++) $ map char (['a'..'z'] ++ ['A'..'Z'])
+
 space :: Parser ()
 space = do (char ' ') +++ (char '\t') +++ (char '\n')
            return ()
@@ -145,11 +148,24 @@ spaces = (do space; spaces) +++ (return ())
 
 
 
+
 program :: Parser Expr
 program = do spaces
              e <- parseE
              spaces
              return e
+
+identifier :: Parser String
+identifier = do hd <- alpha
+                tl <- identifier'
+                return $ [hd] ++ tl
+
+identifier' :: Parser String
+identifier' = (do c  <- alpha +++ (intToDigit <$> digit)
+                  cs <- identifier'
+                  return $ [c] ++ cs)
+              +++
+              (return "")
 
 parseE :: Parser Expr
 parseE = parseI +++ parseL
