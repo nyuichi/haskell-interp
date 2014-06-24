@@ -119,11 +119,10 @@ string (c:cs) = do x  <- char c
                    return $ x:xs
 
 digit :: Parser Int
-digit = (digitToInt <$> (char '0')) +++ (digitToInt <$> (char '1')) +++
-        (digitToInt <$> (char '2')) +++ (digitToInt <$> (char '3')) +++
-        (digitToInt <$> (char '4')) +++ (digitToInt <$> (char '5')) +++
-        (digitToInt <$> (char '6')) +++ (digitToInt <$> (char '7')) +++
-        (digitToInt <$> (char '8')) +++ (digitToInt <$> (char '9'))
+digit = digitToInt <$> digit'
+
+digit' :: Parser Char
+digit' = foldl1 (+++) $ map char ['0'..'9']
 
 number :: Parser Int
 number = do d  <- digit
