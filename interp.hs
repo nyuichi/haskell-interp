@@ -23,7 +23,7 @@ data Expr
 
 type Env = [(String, Value)]
 
-type EvalM = ReaderT Env (ExceptT String (StateT Int Identity))
+type EvalM = ExceptT String (ReaderT Env (StateT Int Identity))
 
 assertVInt :: Value -> EvalM Int
 assertVInt (VInt i) = return i
@@ -239,7 +239,7 @@ runParse :: String -> [Expr]
 runParse str = runParser program str
 
 runEval :: Expr -> Either String Value
-runEval expr = runIdentity (evalStateT (runExceptT (runReaderT (eval expr) [])) 0)
+runEval expr = runIdentity (evalStateT (runReaderT (runExceptT (eval expr)) []) 0)
 
 main :: IO ()
 main = do s <- getContents
