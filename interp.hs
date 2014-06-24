@@ -184,6 +184,16 @@ parseI = do string "if"
             e3 <- parseE
             return $ EIf e1 e2 e3
 
+parseC :: Parser Expr
+parseC = (do e1 <- parseL
+             spaces
+             string "<"
+             spaces
+             e2 <- parseL
+             return $ ELt e1 e2)
+         +++
+         parseL
+
 parseL :: Parser Expr
 parseL = do e <- parseM
             f <- parseL' e
@@ -242,13 +252,6 @@ parseB = (do string "True"
          (do string "False"
              return $ EConst (VBool False))
 
-parseC :: Parser Expr
-parseC = do e1 <- parseE
-            spaces
-            string "<"
-            spaces
-            e2 <- parseE
-            return $ ELt e1 e2
 
 runParse :: String -> [Expr]
 runParse str = runParser program str
