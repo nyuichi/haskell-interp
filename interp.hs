@@ -125,13 +125,13 @@ digit' :: Parser Char
 digit' = foldl1 (+++) $ map char ['0'..'9']
 
 number :: Parser Int
-number = do d  <- digit
+number = do d <- digit
             e <- number' d
             return $ e
 
 number' :: Int -> Parser Int
 number' i = (do d <- digit
-                ds <- number' d
+                ds <- number' (i * 10 + d)
                 return $ ds)
             +++
             (return i)
